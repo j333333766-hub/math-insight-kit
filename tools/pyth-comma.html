@@ -237,8 +237,17 @@
         .table-panel th, .table-panel td { padding: 6px 10px; }
         .kb-info { text-align: center; font-size: 0.85em; color: #7f8c8d; margin: 0; }
         .keyboard-wrapper { padding: 10px 6px; }
+        /* 11/13 [처음으로]·[윗줄 12평균율로 채우기] */
+        .kb-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+        .kb-bar .kb-info { flex: 1; text-align: right; }
+        .kb-btn { padding: 6px 12px; font-size: 0.88em; white-space: nowrap; border: none; border-radius: 8px; cursor: pointer; color: #fff; font-weight: 700; font-family: inherit; }
+        .kb-btn.reset { background: #7f8c8d; }
+        .kb-btn.et { background: #8e44ad; }
+        .kb-btn:hover { filter: brightness(0.92); }
         /* 11/13 두 줄: 화면 높이에 맞춰 한 줄 높이를 줄임 */
-        .piano { height: clamp(220px, calc((100vh - 190px) / 2), 320px); margin: 0; }
+        .piano { height: clamp(220px, calc((100vh - 200px) / 2), 320px); margin: 0; }
+        .key input.freq-input { font-size: 12.5px; padding: 5px 0; letter-spacing: -0.4px; width: 96%; }
+        .key.black input.freq-input { font-size: 10.5px; letter-spacing: -0.6px; }
         .piano-2 { margin-top: 14px; }
     </style>
 </head>
@@ -302,7 +311,11 @@
     </div>
 
     <div class="panel">
+        <div class="kb-bar">
+            <button type="button" id="btn-reset" class="kb-btn reset" title="계산기 입력 110 · 두 줄 모두 A2=110만 남기고 비움 · 건반 색도 처음으로">↺ 처음으로 (110Hz)</button>
+            <button type="button" id="btn-fill-et" class="kb-btn et" title="윗줄 모든 건반에 12평균율 주파수(A2=110Hz 기준)를 채워요">윗줄 12평균율로 채우기</button>
         <p class="kb-info">💡 계산 결과값은 건반 아래 <b>Hz 칸으로 끌어 놓아요</b> · 건반을 누르면 색이 바뀌어요(빨강 → 파랑 → 노랑 → 기본) · 범위 A2 (110Hz) ~ C10</p>
+        </div>
 
         <!-- 11/13 사용자: 7옥타브 건반을 두 줄로(같은 건반 두 벌, 한 스크롤 안이라 좌우가 함께 움직임) -->
         <div class="keyboard-wrapper" id="keyboard-wrapper">
@@ -450,6 +463,24 @@
             
             piano.style.width = `${whiteKeyCount * whiteKeyWidth}px`;
             }
+
+            // --- 4. 11/13 사용자: [처음으로 (110Hz)] · [윗줄 12평균율로 채우기] ---
+            document.getElementById('btn-reset').addEventListener('click', () => {
+                baseFreqInput.value = '110';
+                opSelect.value = '2';
+                currentResultValue = null; calcResultDiv.textContent = '결과 대기';
+                document.querySelectorAll('#piano .key, #piano2 .key').forEach((k) => {
+                    k.dataset.colorState = '0'; k.classList.remove('key-color-1', 'key-color-2', 'key-color-3');
+                    const inp = k.querySelector('.freq-input'); if (inp) inp.value = k.dataset.midi === '45' ? '110' : '';
+                });
+                document.getElementById('keyboard-wrapper').scrollLeft = 0;
+            });
+            document.getElementById('btn-fill-et').addEventListener('click', () => {
+                document.querySelectorAll('#piano .key').forEach((k) => {
+                    const inp = k.querySelector('.freq-input');
+                    if (inp) inp.value = (110 * Math.pow(2, (Number(k.dataset.midi) - 45) / 12)).toFixed(2);
+                });
+            });
         });
     </script>
 </body>
