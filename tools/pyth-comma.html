@@ -239,7 +239,15 @@
         .keyboard-wrapper { padding: 10px 6px; }
         /* 11/13 [처음으로]·[윗줄 12평균율로 채우기] */
         .kb-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
-        .kb-bar .kb-info { flex: 1; text-align: right; }
+        .kb-bar .kb-info { flex: 1; text-align: center; }
+        /* 한 줄에 들어가게 조금씩 줄임 */
+        .topbar { gap: 8px; flex-wrap: nowrap; }
+        .topbar h1 { font-size: 16px; }
+        .topbar .formula-box { padding: 4px 8px; font-size: 0.92em; }
+        .topbar .calc-section { gap: 6px; }
+        .topbar button, .topbar .kb-btn { padding: 7px 9px; font-size: 0.85em; }
+        .topbar input[type="number"] { width: 78px; }
+        .topbar #calc-result { min-width: 80px; padding: 6px 8px; white-space: nowrap; }
         .kb-btn { padding: 6px 12px; font-size: 0.88em; white-space: nowrap; border: none; border-radius: 8px; cursor: pointer; color: #fff; font-weight: 700; font-family: inherit; }
         .kb-btn.reset { background: #7f8c8d; }
         .kb-btn.et { background: #8e44ad; }
@@ -257,7 +265,7 @@
     <div class="panel topbar">
         <h1>피타고라스 음률과 12평균율 탐구</h1>
         <div class="formula-box">\( \sqrt[12]{2} \approx 1.059463094 \)</div>
-        <button id="btn-show-table">거듭제곱 표 확인하기 ∨</button>
+        <button id="btn-show-table">거듭제곱 표 ∨</button>
         <div class="calc-section">
             <input type="number" id="base-freq" value="110" step="any" placeholder="주파수(Hz)">
             <select id="op-select">
@@ -267,6 +275,9 @@
             <button id="btn-calc" class="btn-green">계산하기</button>
             <div id="calc-result" draggable="true" title="이 값을 건반 아래 칸으로 드래그하세요!">결과 대기</div>
             <button id="btn-send-back">결과값 보내기 ↺</button>
+            <!-- 11/13 사용자: [처음으로]·[12평균율로 채우기]를 결과값 보내기 오른쪽에(한 줄) -->
+            <button type="button" id="btn-reset" class="kb-btn reset" title="처음으로: 계산기 입력 110 · 두 줄 모두 A2=110만 남기고 비움 · 건반 색도 처음으로">↺ 처음으로</button>
+            <button type="button" id="btn-fill-et" class="kb-btn et" title="윗줄 모든 건반에 12평균율 주파수(A2=110Hz 기준)를 채워요">윗줄 12평균율</button>
         </div>
     </div>
 
@@ -312,8 +323,6 @@
 
     <div class="panel">
         <div class="kb-bar">
-            <button type="button" id="btn-reset" class="kb-btn reset" title="계산기 입력 110 · 두 줄 모두 A2=110만 남기고 비움 · 건반 색도 처음으로">↺ 처음으로 (110Hz)</button>
-            <button type="button" id="btn-fill-et" class="kb-btn et" title="윗줄 모든 건반에 12평균율 주파수(A2=110Hz 기준)를 채워요">윗줄 12평균율로 채우기</button>
         <p class="kb-info">💡 계산 결과값은 건반 아래 <b>Hz 칸으로 끌어 놓아요</b> · 건반을 누르면 색이 바뀌어요(빨강 → 파랑 → 노랑 → 기본) · 범위 A2 (110Hz) ~ C10</p>
         </div>
 
@@ -337,11 +346,11 @@
                 if (isTableVisible) {
                     powerTable.style.display = 'table';
                     document.getElementById('table-panel').style.display = '';
-                    btnShowTable.textContent = '거듭제곱 표 접기 ∧';
+                    btnShowTable.textContent = '거듭제곱 표 ∧';
                 } else {
                     powerTable.style.display = 'none';
                     document.getElementById('table-panel').style.display = 'none';
-                    btnShowTable.textContent = '거듭제곱 표 확인하기 ∨';
+                    btnShowTable.textContent = '거듭제곱 표 ∨';
                 }
             });
 
