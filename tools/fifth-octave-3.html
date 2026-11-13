@@ -178,6 +178,17 @@
         .key.p5-down .interval-badge { background-color: var(--color-p5-down); opacity: 1; }
         .key.p8-up .interval-badge { background-color: var(--color-p8-up); opacity: 1; }
         .key.p8-down .interval-badge { background-color: var(--color-p8-down); opacity: 1; }
+        /* 11/13 사용자: 숫자키 1~0 으로 흰건반 10개 연주(←/→ 로 한 옥타브씩 옮김) */
+        .note-label { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .kbd { display: inline-block; min-width: 18px; padding: 1px 4px; border: 1.5px solid #d9b44a; border-bottom-width: 3px; border-radius: 5px; background: #fff4c2; color: #7a5a00; font: 700 13px/1.3 Consolas, 'Courier New', monospace; text-align: center; }
+        .kbd.off { visibility: hidden; }
+        .kbd.arr { background: #f4f6f9; border-color: #9aa3b2; color: #2c3e50; }
+        .key.down { filter: brightness(0.82); transform: translateY(2px); }
+        .key.white .interval-badge { bottom: 70px !important; }
+        .key.white.selected, .key.white.p5-up, .key.white.p5-down, .key.white.p8-up, .key.white.p8-down { z-index: 2 !important; }
+        .key.black { z-index: 3 !important; }
+        .kbd-tip { font-size: 0.9em; color: #6b7385; margin-top: 6px; text-align: center; }
+        .kbd-tip b { color: #2c3e50; }
 
     </style>
 </head>
@@ -185,7 +196,7 @@
 
     <h1>피타고라스 음률 시각화 웹앱</h1>
     <p class="description">
-        아무 건반이나 클릭해 보세요. <br>
+        아무 건반이나 클릭하거나 <b>숫자키 1~0</b>으로 연주해 보세요(노란 숫자 = 누를 키). <br>
         선택한 건반을 기준으로 <b>완전5도(7반음)</b>와 <b>완전8도(12반음)</b> 간격의 건반이 표시됩니다.
     </p>
 
@@ -200,6 +211,7 @@
     <div class="keyboard-wrapper">
         <div class="piano" id="piano"></div>
     </div>
+    <p class="kbd-tip">숫자키 <span class="kbd">1</span>~<span class="kbd">0</span> = 노란 숫자가 붙은 흰건반 10개 (지금 <b id="win-name">도4~미5</b>) · <span class="kbd arr">←</span> <span class="kbd arr">→</span> 한 옥타브씩 옮기기 · 키가 안 먹으면 건반을 한 번 클릭하세요</p>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -230,6 +242,7 @@
                 const label = document.createElement('div');
                 label.className = 'note-label';
                 label.textContent = `${noteName}${octave}`;
+                if (!isBlack) { const kb = document.createElement('span'); kb.className = 'kbd off'; label.appendChild(kb); }
                 key.appendChild(label);
 
                 // 인터벌 뱃지 엘리먼트 (기본은 숨김 상태)
@@ -248,10 +261,57 @@
                 }
 
                 // 클릭 이벤트 등록
-                key.addEventListener('click', () => highlightIntervals(midi));
+                key.addEventListener('click', () => { press(midi); window.focus(); });
 
                 piano.appendChild(key);
             }
+
+            // 11/13 숫자키 연주: 흰건반 10개 구간(도3·도4·도5에서 시작, 처음은 도4~미5 = ①번 도구와 같음)
+            const WHITES = [...piano.querySelectorAll('.key.white')].map((k) => Number(k.dataset.midi));
+            const STARTS = [0, 7, 14];   // WHITES 안 시작 위치(도3, 도4, 도5)
+            let win = 1, NUM = {};
+            function drawWin() {
+                NUM = {};
+                WHITES.slice(STARTS[win], STARTS[win] + 10).forEach((m, i) => { NUM['Digit' + ((i + 1) % 10)] = m; NUM['Numpad' + ((i + 1) % 10)] = m; });
+                const on = new Map(Object.entries(NUM).filter(([c]) => c.startsWith('Digit')).map(([c, m]) => [m, c.slice(5)]));
+                piano.querySelectorAll('.key.white').forEach((k) => {
+                    const kb = k.querySelector('.kbd'), d = on.get(Number(k.dataset.midi));
+                    kb.textContent = d || ''; kb.classList.toggle('off', !d);
+                });
+                const ws = WHITES.slice(STARTS[win], STARTS[win] + 10), nm = (m) => notes[m % 12] + (Math.floor(m / 12) - 1);
+                document.getElementById('win-name').textContent = `${nm(ws[0])}~${nm(ws[ws.length - 1])}`;
+            }
+            let ac = null;
+            function playNote(midi) {
+                try {
+                    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+                    if (ac.state === 'suspended') ac.resume();
+                    const f = 440 * Math.pow(2, (midi - 69) / 12), t = ac.currentTime;
+                    const g = ac.createGain(); g.connect(ac.destination);
+                    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.35, t + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.4);
+                    [[1, 'triangle', 1], [2, 'sine', 0.25]].forEach(([mul, type, v]) => {
+                        const o = ac.createOscillator(), og = ac.createGain();
+                        o.type = type; o.frequency.value = f * mul; og.gain.value = v;
+                        o.connect(og); og.connect(g); o.start(t); o.stop(t + 1.5);
+                    });
+                } catch (e) { console.warn('소리', e); }
+            }
+            function press(midi) {
+                playNote(midi); highlightIntervals(midi);
+                const k = piano.querySelector(`.key[data-midi="${midi}"]`);
+                if (k) { k.classList.add('down'); clearTimeout(k._t); k._t = setTimeout(() => k.classList.remove('down'), 160); }
+            }
+            document.addEventListener('keydown', (e) => {
+                if (e.repeat || e.ctrlKey || e.altKey || e.metaKey) return;
+                if (e.code === 'ArrowLeft' || e.code === 'ArrowRight') {
+                    e.preventDefault();
+                    win = Math.max(0, Math.min(STARTS.length - 1, win + (e.code === 'ArrowRight' ? 1 : -1))); drawWin(); return;
+                }
+                const m = NUM[e.code];
+                if (m === undefined) return;
+                e.preventDefault(); press(m);
+            });
+            drawWin();
 
             // 피아노 컨테이너 전체 너비 설정
             piano.style.width = `${whiteKeyCount * whiteKeyWidth}px`;
