@@ -237,6 +237,9 @@
         .table-panel th, .table-panel td { padding: 6px 10px; }
         .kb-info { text-align: center; font-size: 0.85em; color: #7f8c8d; margin: 0; }
         .keyboard-wrapper { padding: 10px 6px; }
+        /* 11/13 두 줄: 화면 높이에 맞춰 한 줄 높이를 줄임 */
+        .piano { height: clamp(220px, calc((100vh - 190px) / 2), 320px); margin: 0; }
+        .piano-2 { margin-top: 14px; }
     </style>
 </head>
 <body>
@@ -250,7 +253,7 @@
             <input type="number" id="base-freq" value="110" step="any" placeholder="주파수(Hz)">
             <select id="op-select">
                 <option value="1.5">× 1.5 (완전5도)</option>
-                <option value="2">× 2 (옥타브)</option>
+                <option value="2" selected>× 2 (옥타브)</option>
             </select>
             <button id="btn-calc" class="btn-green">계산하기</button>
             <div id="calc-result" draggable="true" title="이 값을 건반 아래 칸으로 드래그하세요!">결과 대기</div>
@@ -301,8 +304,10 @@
     <div class="panel">
         <p class="kb-info">💡 계산 결과값은 건반 아래 <b>Hz 칸으로 끌어 놓아요</b> · 건반을 누르면 색이 바뀌어요(빨강 → 파랑 → 노랑 → 기본) · 범위 A2 (110Hz) ~ C10</p>
 
+        <!-- 11/13 사용자: 7옥타브 건반을 두 줄로(같은 건반 두 벌, 한 스크롤 안이라 좌우가 함께 움직임) -->
         <div class="keyboard-wrapper" id="keyboard-wrapper">
             <div class="piano" id="piano"></div>
+            <div class="piano piano-2" id="piano2"></div>
         </div>
     </div>
 
@@ -363,8 +368,8 @@
                 }
             });
 
-            // --- 3. 피아노 건반 생성 (A2 ~ C10) ---
-            const piano = document.getElementById('piano');
+            // --- 3. 피아노 건반 생성 (A2 ~ C10) — 11/13 같은 건반을 두 줄로 ---
+            for (const piano of [document.getElementById('piano'), document.getElementById('piano2')]) {
             
             const startMidi = 45; 
             const endMidi = 132;  
@@ -444,6 +449,7 @@
             }
             
             piano.style.width = `${whiteKeyCount * whiteKeyWidth}px`;
+            }
         });
     </script>
 </body>
