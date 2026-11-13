@@ -143,6 +143,20 @@
             font-size: 0.8em;
             color: rgba(255,255,255,0.8);
         }
+        /* 11/13 사용자: 옥타브 숫자 대신 연주용 키보드 키 표시 */
+        .note-label { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .kbd { display: inline-block; min-width: 22px; padding: 1px 5px; border: 1.5px solid #9aa3b2; border-bottom-width: 3px; border-radius: 5px; background: #f4f6f9; color: #2c3e50; font: 700 13px/1.3 Consolas, 'Courier New', monospace; text-align: center; }
+        .black .kbd { min-width: 18px; padding: 1px 3px; background: #46586b; color: #fff; border-color: #8193a6; font-size: 12px; }
+        .kbds { display: flex; gap: 3px; }
+        .white .kbds .kbd { min-width: 18px; padding: 1px 4px; }
+        .kbd.num { background: #fff4c2; border-color: #d9b44a; color: #7a5a00; }
+        .key.down { filter: brightness(0.82); transform: translateY(2px); }
+        /* 칠한 흰건반이 검은건반을 덮지 않게, 배지는 음 이름·키 표시 위로 */
+        .key.white.selected, .key.white.p5-up, .key.white.p5-down, .key.white.p8-up, .key.white.p8-down { z-index: 2 !important; }
+        .key.black { z-index: 3 !important; }
+        .key.white .interval-badge { bottom: 78px !important; }
+        .key.black .interval-badge { bottom: 72px !important; }
+        .kbd-tip { font-size: 0.9em; color: #6b7385; margin-top: 6px; }
 
         /* Highlight Classes */
         .key.selected { background-color: var(--color-selected) !important; color: #333; border: 2px solid #e67e22; z-index: 3;}
@@ -185,7 +199,7 @@
 
     <h1>피타고라스 음률 시각화 웹앱</h1>
     <p class="description">
-        아무 건반이나 클릭해 보세요. <br>
+        아무 건반이나 클릭하거나 <b>키보드</b>로 연주해 보세요(건반 위 글자 = 누를 키). <br>
         선택한 건반을 기준으로 <b>완전5도(7반음)</b>와 <b>완전8도(12반음)</b> 간격의 건반이 표시됩니다.
     </p>
 
@@ -200,6 +214,7 @@
     <div class="keyboard-wrapper">
         <div class="piano" id="piano"></div>
     </div>
+    <p class="kbd-tip" id="kbd-tip">흰건반 <span class="kbd num">1</span>~<span class="kbd num">0</span> 또는 <span class="kbd">A</span>~<span class="kbd">;</span> · 검은건반 <span class="kbd">W</span> <span class="kbd">E</span> <span class="kbd">T</span> <span class="kbd">Y</span> <span class="kbd">U</span> <span class="kbd">O</span> <span class="kbd">P</span> · 한글 입력 상태여도 돼요 · 키가 안 먹으면 건반을 한 번 클릭하세요</p>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -211,6 +226,45 @@
             
             const notes = ['도', '도#', '레', '레#', '미', '파', '파#', '솔', '솔#', '라', '라#', '시'];
             
+            // 11/13 키보드 연주: 흰건반 A S D F G H J K L ; · 검은건반 W E T Y U O P (e.code 라 한글 입력 상태여도 같음)
+            const KEY_OF = {
+                60: { code: 'KeyA', label: 'A' }, 61: { code: 'KeyW', label: 'W' }, 62: { code: 'KeyS', label: 'S' }, 63: { code: 'KeyE', label: 'E' },
+                64: { code: 'KeyD', label: 'D' }, 65: { code: 'KeyF', label: 'F' }, 66: { code: 'KeyT', label: 'T' }, 67: { code: 'KeyG', label: 'G' },
+                68: { code: 'KeyY', label: 'Y' }, 69: { code: 'KeyH', label: 'H' }, 70: { code: 'KeyU', label: 'U' }, 71: { code: 'KeyJ', label: 'J' },
+                72: { code: 'KeyK', label: 'K' }, 73: { code: 'KeyO', label: 'O' }, 74: { code: 'KeyL', label: 'L' }, 75: { code: 'KeyP', label: 'P' },
+                76: { code: 'Semicolon', label: ';' },
+            };
+            const MIDI_OF = Object.fromEntries(Object.entries(KEY_OF).map(([m, k]) => [k.code, Number(m)]));
+            // 11/13 사용자: 흰건반은 숫자키 1~0 으로도(도4=1 … 미5=0). 오른쪽 숫자 패드도 같게
+            const WHITE = [60, 62, 64, 65, 67, 69, 71, 72, 74, 76], NUM_OF = {};
+            WHITE.forEach((m, i) => { const d = String((i + 1) % 10); NUM_OF[m] = d; MIDI_OF['Digit' + d] = m; MIDI_OF['Numpad' + d] = m; });
+            let ac = null;
+            function playNote(midi) {
+                try {
+                    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+                    if (ac.state === 'suspended') ac.resume();
+                    const f = 440 * Math.pow(2, (midi - 69) / 12), t = ac.currentTime;
+                    const g = ac.createGain(); g.connect(ac.destination);
+                    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.35, t + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.4);
+                    [[1, 'triangle', 1], [2, 'sine', 0.25]].forEach(([mul, type, v]) => {
+                        const o = ac.createOscillator(), og = ac.createGain();
+                        o.type = type; o.frequency.value = f * mul; og.gain.value = v;
+                        o.connect(og); og.connect(g); o.start(t); o.stop(t + 1.5);
+                    });
+                } catch (e) { console.warn('소리', e); }
+            }
+            function press(midi) {
+                playNote(midi); highlightIntervals(midi);
+                const k = document.querySelector(`.key[data-midi="${midi}"]`);
+                if (k) { k.classList.add('down'); clearTimeout(k._t); k._t = setTimeout(() => k.classList.remove('down'), 160); }
+            }
+            document.addEventListener('keydown', (e) => {
+                if (e.repeat || e.ctrlKey || e.altKey || e.metaKey) return;
+                const m = MIDI_OF[e.code];
+                if (m === undefined) return;
+                e.preventDefault(); press(m);
+            });
+
             const whiteKeyWidth = 60; // 건반 개수가 줄어서 넓이를 약간 키움
             const blackKeyWidth = 36;
             let whiteKeyCount = 0;
@@ -230,7 +284,13 @@
                 // 라벨 추가 (도4, 레4 등)
                 const label = document.createElement('div');
                 label.className = 'note-label';
-                label.textContent = `${noteName}${octave}`;
+                // 11/13 사용자: 옥타브 숫자 대신 이 음을 연주하는 키보드 키
+                const nm = document.createElement('span'); nm.textContent = noteName;
+                const kb = document.createElement('span'); kb.className = 'kbd'; kb.textContent = KEY_OF[midi] ? KEY_OF[midi].label : '';
+                const ks = document.createElement('span'); ks.className = 'kbds';
+                if (NUM_OF[midi]) { const kn = document.createElement('span'); kn.className = 'kbd num'; kn.textContent = NUM_OF[midi]; ks.append(kn); }
+                ks.append(kb);
+                label.append(nm, ks);
                 key.appendChild(label);
 
                 // 인터벌 뱃지 엘리먼트
@@ -247,7 +307,7 @@
                 }
 
                 // 클릭 이벤트 등록
-                key.addEventListener('click', () => highlightIntervals(midi));
+                key.addEventListener('click', () => { press(midi); window.focus(); });
 
                 piano.appendChild(key);
             }
