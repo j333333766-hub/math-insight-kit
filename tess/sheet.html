@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>테셀레이션 활동지</title>
+<link rel="icon" href="../emoji/1f4c4.svg">
+<link rel="stylesheet" href="../kit.css">
+<style>
+  body { background: #fff; }
+  .wrap { max-width: 800px; }
+  .ws h1 { font-size: 24px; }
+  .ws h3 { margin-top: 18px; }
+  .ws td { height: 34px; }
+  .who { display: flex; gap: 18px; font-size: 15px; margin: 4px 0 10px; }
+  .who span { flex: 1; border-bottom: 1px solid #888; padding-bottom: 2px; }
+  .box { border: 1px solid #999; border-radius: 8px; min-height: 90px; padding: 8px; color: #888; font-size: 14px; }
+  @page { size: A4; margin: 14mm; }
+  @media print { .pb { page-break-before: always; } .ws h1 { font-size: 21px; } }
+</style>
+</head>
+<body>
+<div class="wrap ws">
+  <div class="row noprint" style="margin-bottom:12px"><a class="btn" href="./">← 교사용 안내</a><button class="btn pri" type="button" onclick="print()">🖨 인쇄하기</button><span class="muted">A4 2쪽</span></div>
+  <h1>꼭짓점 마스터: 360°의 비밀</h1>
+  <div class="who"><span>학년 반 번호</span><span>이름</span></div>
+
+  <h3>1. 정다각형의 한 내각</h3>
+  <p class="muted">정n각형의 한 내각 = 180° × (n − 2) ÷ n</p>
+  <table><tr><th>정n각형</th><th>3</th><th>4</th><th>5</th><th>6</th><th>8</th><th>9</th><th>10</th><th>12</th></tr>
+    <tr><th>한 내각</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></table>
+  <p>한 꼭짓점에 정다각형이 빈틈없이 모이려면 내각의 합이 ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )°여야 한다.
+     한 꼭짓점에는 정다각형이 최소 ( &nbsp;&nbsp; )개, 최대 ( &nbsp;&nbsp; )개 모일 수 있다. 그 까닭은?</p>
+  <div class="box" style="min-height:60px"></div>
+
+  <h3>2. 찾은 조합 기록하기 (꼭짓점 마스터)</h3>
+  <table>
+    <tr><th style="width:48px">번호</th><th>조합 (예: 3, 12, 12)</th><th>내각의 합 식 (예: 60+150+150=360)</th><th style="width:48px">번호</th><th>조합</th><th>내각의 합 식</th></tr>
+    <tr><td>1</td><td></td><td></td><td>10</td><td></td><td></td></tr>
+    <tr><td>2</td><td></td><td></td><td>11</td><td></td><td></td></tr>
+    <tr><td>3</td><td></td><td></td><td>12</td><td></td><td></td></tr>
+    <tr><td>4</td><td></td><td></td><td>13</td><td></td><td></td></tr>
+    <tr><td>5</td><td></td><td></td><td>14</td><td></td><td></td></tr>
+    <tr><td>6</td><td></td><td></td><td>15</td><td></td><td></td></tr>
+    <tr><td>7</td><td></td><td></td><td>16</td><td></td><td></td></tr>
+    <tr><td>8</td><td></td><td></td><td>17</td><td></td><td></td></tr>
+    <tr><td>9</td><td></td><td></td><td></td><td></td><td></td></tr>
+  </table>
+  <p>빠뜨리지 않고 모두 찾으려고 내가 쓴 방법은?</p>
+  <div class="box" style="min-height:60px"></div>
+
+  <h3 class="pb">3. 폴리패드로 깔아 보기</h3>
+  <p class="muted">순서쌍을 골라 한 꼭짓점을 채우고 두세 겹 넓혀 보세요. 모든 꼭짓점의 배열이 처음 꼭짓점과 같으면 ○.</p>
+  <table>
+    <tr><th>미션</th><th>고른 순서쌍</th><th>평면을 채우나? (○ / ✕)</th><th>✕라면 막힌 꼭짓점의 배열</th><th>타일 개수 비 (예측 → 실제)</th></tr>
+    <tr><td>1 · 3개</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>1 · 3개</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>2 · 4개</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>2 · 4개</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>3 · 5개</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>4 · 6개</td><td></td><td></td><td></td><td></td></tr>
+  </table>
+
+  <h3>4. 생각 정리</h3>
+  <p>① (5, 5, 10)은 한 꼭짓점에서 360°인데 왜 평면 전체를 채우지 못할까요? 그림을 그려 설명해 보세요.</p>
+  <div class="box"></div>
+  <p>② (3, 6, 3, 6)과 (3, 3, 6, 6)은 같은 타일을 쓰는데 무엇이 다른가요?</p>
+  <div class="box"></div>
+  <p>③ ‘한 꼭짓점에서 내각의 합이 360°’와 ‘평면 전체를 채운다’는 어떻게 다른지 한 문장으로 써 보세요.</p>
+  <div class="box" style="min-height:60px"></div>
+</div>
+</body>
+</html>

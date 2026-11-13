@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>피타고라스 음률 활동지</title>
+<link rel="icon" href="../emoji/1f4c4.svg">
+<link rel="stylesheet" href="../kit.css">
+<style>
+  body { background: #fff; }
+  .wrap { max-width: 800px; }
+  .ws h1 { font-size: 24px; }
+  .ws h3 { margin-top: 18px; }
+  .ws td { height: 34px; }
+  .who { display: flex; gap: 18px; font-size: 15px; margin: 4px 0 10px; }
+  .who span { flex: 1; border-bottom: 1px solid #888; padding-bottom: 2px; }
+  .box { border: 1px solid #999; border-radius: 8px; min-height: 90px; padding: 8px; }
+  @page { size: A4; margin: 14mm; }
+  @media print { .pb { page-break-before: always; } .ws h1 { font-size: 21px; } }
+</style>
+</head>
+<body class="music">
+<div class="wrap ws">
+  <div class="row noprint" style="margin-bottom:12px"><a class="btn" href="./">← 교사용 안내</a><button class="btn pri" type="button" onclick="print()">🖨 인쇄하기</button><span class="muted">A4 2쪽</span></div>
+  <h1>피타고라스 음률 — 비로 만드는 음계</h1>
+  <div class="who"><span>학년 반 번호</span><span>이름</span></div>
+
+  <h3>1. 줄의 길이와 소리</h3>
+  <p>줄의 길이를 1/2 로 하면 한 옥타브(완전8도) 높은 같은 음이 나요. 이때 진동수(주파수)는 ( &nbsp;&nbsp;&nbsp; )배가 돼요.</p>
+  <p>줄의 길이를 2/3 로 하면 완전5도 높은 음이 나요. 이때 진동수는 ( &nbsp;&nbsp;&nbsp; )배가 돼요.</p>
+  <p>건반에서 완전5도는 ( &nbsp;&nbsp; )반음, 완전8도는 ( &nbsp;&nbsp; )반음 떨어져 있어요. ‘도’의 완전5도 위는 ( &nbsp;&nbsp;&nbsp; ), 그 완전5도 위는 ( &nbsp;&nbsp;&nbsp; )예요.</p>
+
+  <h3>2. 피타고라스 음계 만들기 (③ 음률 계산기)</h3>
+  <p class="muted">도 = 261.63Hz 에서 시작해 ×3/2 를 하고, 높은 도(523.26Hz)를 넘으면 ×1/2 로 한 옥타브 내려요. 파는 도에서 ×2/3 를 한 뒤 ×2.</p>
+  <table>
+    <tr><th>음</th><th>만든 순서 (예: 도 ×3/2 → 솔)</th><th>도에 대한 비 (분수)</th><th>주파수 (Hz)</th><th>12평균율 (Hz)</th></tr>
+    <tr><td>도</td><td>기준</td><td>1</td><td>261.63</td><td>261.63</td></tr>
+    <tr><td>레</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>미</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>파</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>솔</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>라</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>시</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>높은 도</td><td></td><td>2</td><td>523.26</td><td>523.25</td></tr>
+  </table>
+  <p>두 음계를 번갈아 들어 보니 가장 다르게 들린 음은 ( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )이다.</p>
+
+  <h3 class="pb">3. 피타고라스 콤마 (④)</h3>
+  <table>
+    <tr><th>완전5도 12번 (3/2)¹²</th><th>7옥타브 2⁷</th><th>(3/2)¹² ÷ 2⁷</th></tr>
+    <tr><td></td><td></td><td></td></tr>
+  </table>
+  <p>(3/2)¹² 과 2⁷ 이 절대로 같아질 수 없는 까닭을 써 보세요. (힌트: 3¹² 과 2¹⁹ 은 홀수일까 짝수일까?)</p>
+  <div class="box"></div>
+
+  <h3>4. 숫자로 연주하기 (⑤)</h3>
+  <table>
+    <tr><th>수</th><th>소수로 나타내기 (처음 10자리)</th><th>가락이 되풀이되나? 몇 음마다?</th></tr>
+    <tr><td>1/7</td><td></td><td></td></tr>
+    <tr><td>1/4</td><td></td><td></td></tr>
+    <tr><td>22/7</td><td></td><td></td></tr>
+    <tr><td>π</td><td></td><td></td></tr>
+    <tr><td>√2</td><td></td><td></td></tr>
+  </table>
+
+  <h3>5. 생각 정리</h3>
+  <p>피타고라스 음률(정확한 비)과 12평균율(같은 간격)은 각각 어떤 좋은 점이 있을까요? 내가 작곡가라면 무엇을 쓸지 까닭과 함께 써 보세요.</p>
+  <div class="box"></div>
+</div>
+</body>
+</html>

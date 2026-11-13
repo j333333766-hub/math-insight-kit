@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>숫자로 연주하기</title>
+<link rel="icon" href="../emoji/1f3b9.svg">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<!-- 11/12 사용자: 피타고라스 콤마 다음 활동 — 분수·π·e·√n 의 숫자 배열을 건반으로 연주(참고: 수학 웹앱 프로그램\피타고라스 음계\숫자 피아노.html)
+     숫자 → 건반: 1 도 · 2 레 · 3 미 · 4 파 · 5 솔 · 6 라 · 7 시 · 8 높은 도 · 9 높은 레 · 0 높은 미 (원본 숫자 피아노와 같게)
+     자리 숫자는 BigInt 로 정확히 구함: 분수는 나눗셈, π 는 마친 공식, e 는 1/k! 합, √n 은 정수 제곱근. -->
+<style>
+  :root {
+    --red: #e84118; --blue: #17b5e2; --yellow: #ffc900; --ink: #15181f; --muted: #667085; --line: #e6e8ee;
+    --bg: #f5f6fa; --card: #fff; --accent: #e84118;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { font-family: 'Pretendard Variable', Pretendard, 'Malgun Gothic', sans-serif; background: var(--bg); color: var(--ink); display: flex; flex-direction: column; padding: 10px 14px; gap: 10px; word-break: keep-all; }
+  button, input, select { font: inherit; }
+
+  /* 위 조작 줄(한 줄) */
+  .bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 10px 14px; box-shadow: 0 2px 10px rgba(20, 30, 60, .05); }
+  .bar h1 { font-size: 18px; margin: 0 4px 0 0; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+  .bar h1 img { width: 24px; height: 24px; }
+  .seg { display: inline-flex; background: #eef0f5; border-radius: 12px; padding: 3px; gap: 2px; }
+  .seg button { border: 0; background: transparent; padding: 6px 12px; border-radius: 9px; font-weight: 700; font-size: 14px; color: #475467; cursor: pointer; white-space: nowrap; }
+  .seg button.on { background: #fff; color: var(--accent); box-shadow: 0 1px 4px rgba(20, 30, 60, .15); }
+  .src { display: inline-flex; align-items: center; gap: 6px; }
+  .src.hidden { display: none; }
+  .num { width: 64px; padding: 6px 8px; border: 1.5px solid var(--line); border-radius: 10px; text-align: center; font-weight: 700; font-size: 15px; }
+  .num:focus { outline: none; border-color: var(--blue); }
+  .frac { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; }
+  .frac .num { width: 70px; padding: 3px 6px; font-size: 14px; }
+  .frac i { display: block; width: 100%; height: 2px; background: var(--ink); border-radius: 2px; }
+  .root { display: inline-flex; align-items: center; font-size: 22px; font-weight: 700; }
+  .root .num { border-top: 2.5px solid var(--ink); border-radius: 0 0 10px 10px; margin-left: -2px; }
+  .opt { display: inline-flex; align-items: center; gap: 5px; font-size: 13.5px; color: var(--muted); font-weight: 600; white-space: nowrap; }
+  .opt .num { width: 60px; }
+  .sp { flex: 1; }
+  .btn { border: 0; border-radius: 12px; padding: 9px 16px; font-weight: 800; font-size: 15px; cursor: pointer; white-space: nowrap; }
+  .btn.play { background: var(--accent); color: #fff; box-shadow: 0 3px 0 #b8320f; }
+  .btn.play:active { transform: translateY(2px); box-shadow: 0 1px 0 #b8320f; }
+  .btn.stop { background: #fff; color: var(--ink); border: 1.5px solid var(--line); }
+  .btn:disabled { opacity: .45; cursor: default; }
+
+  /* 숫자 띠 */
+  .digits { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 10px 14px; }
+  .dhead { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+  .dhead .expr { font-size: 18px; font-weight: 800; }
+  .dhead .meta { font-size: 13px; color: var(--muted); }
+  .dhead .now { margin-left: auto; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .strip { display: flex; flex-wrap: wrap; gap: 3px; max-height: 92px; overflow-y: auto; scroll-behavior: smooth; padding: 2px; }
+  .d { width: 22px; height: 26px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; font-weight: 800; font-size: 14px; font-variant-numeric: tabular-nums; color: #fff; opacity: .5; transition: opacity .1s, transform .1s; }
+  .d.int { box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .25); }
+  .d.dot { width: 10px; background: none !important; color: var(--ink); opacity: 1; }
+  .d.cyc { box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .35); }
+  .d.done { opacity: .9; }
+  .d.cur { opacity: 1; transform: scale(1.25); box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--ink); z-index: 1; }
+
+  /* 건반 */
+  .kb-wrap { flex: 1; min-height: 150px; display: flex; flex-direction: column; background: #1f2430; border-radius: 18px; padding: 12px 12px 14px; box-shadow: 0 8px 24px rgba(20, 30, 60, .25); }
+  .kb { position: relative; flex: 1; display: flex; gap: 4px; min-height: 120px; }
+  .wk { flex: 1; position: relative; background: linear-gradient(#fff, #f3f4f7); border-radius: 0 0 12px 12px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 10px; cursor: pointer; user-select: none; box-shadow: inset 0 -6px 0 #d9dce4; transition: transform .06s; }
+  .wk .dig { font-size: clamp(18px, 3vw, 30px); font-weight: 900; line-height: 1; }
+  .wk .nm { font-size: clamp(11px, 1.3vw, 14px); color: var(--muted); font-weight: 700; margin-top: 4px; }
+  .wk .bar-c { position: absolute; top: 0; left: 0; right: 0; height: 8px; }
+  .wk.on { transform: translateY(3px); box-shadow: inset 0 -2px 0 #d9dce4, 0 0 22px var(--c); background: linear-gradient(#fff, color-mix(in srgb, var(--c) 30%, #fff)); }
+  .bk { position: absolute; top: 0; height: 58%; background: linear-gradient(#3a4150, #1b1f29); border-radius: 0 0 8px 8px; z-index: 2; box-shadow: 0 3px 6px rgba(0, 0, 0, .4); cursor: pointer; }
+  .bk.on { background: #555d70; }
+  .legend { color: #c3c8d4; font-size: 12.5px; margin-top: 8px; text-align: center; }
+  .legend b { color: #fff; }
+  @media (max-width: 760px) { .bar h1 { width: 100%; } }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <h1><img src="../emoji/1f3b9.svg" alt="">숫자로 연주하기</h1>
+    <div class="seg" id="seg" role="tablist" aria-label="연주할 수">
+      <button data-k="frac" class="on">분수</button>
+      <button data-k="pi">π</button>
+      <button data-k="e">e</button>
+      <button data-k="sqrt">√n</button>
+    </div>
+    <span class="src" data-src="frac" title="분자와 분모(자연수)">
+      <span class="frac"><input class="num" id="fa" type="number" min="1" step="1" value="1" aria-label="분자"><i></i><input class="num" id="fb" type="number" min="1" step="1" value="7" aria-label="분모"></span>
+    </span>
+    <span class="src hidden" data-src="sqrt" title="근호 안의 자연수">
+      <span class="root">√<input class="num" id="sn" type="number" min="1" step="1" value="2" aria-label="근호 안의 자연수"></span>
+    </span>
+    <label class="opt">소수점 아래 <input class="num" id="nd" type="number" min="1" max="500" step="1" value="20">자리</label>
+    <label class="opt">반복 <input class="num" id="rep" type="number" min="1" max="20" step="1" value="1">번</label>
+    <label class="opt">빠르기 <select id="tempo" class="num" style="width:auto"><option value="520">느리게</option><option value="360" selected>보통</option><option value="240">빠르게</option><option value="160">아주 빠르게</option></select></label>
+    <span class="sp"></span>
+    <button class="btn play" id="b-play">▶ 연주하기</button>
+    <button class="btn stop" id="b-stop" disabled>■ 멈춤</button>
+  </div>
+
+  <div class="digits">
+    <div class="dhead"><span class="expr" id="expr"></span><span class="meta" id="meta"></span><span class="now" id="now"></span></div>
+    <div class="strip" id="strip"></div>
+  </div>
+
+  <div class="kb-wrap">
+    <div class="kb" id="kb"></div>
+    <div class="legend">숫자 하나 = 건반 하나 · <b>1</b> 도 <b>2</b> 레 <b>3</b> 미 <b>4</b> 파 <b>5</b> 솔 <b>6</b> 라 <b>7</b> 시 <b>8</b> 높은 도 <b>9</b> 높은 레 <b>0</b> 높은 미 · 건반을 눌러도, 키보드 숫자를 눌러도 소리가 나요</div>
+  </div>
+
+<script>
+// ---------- 숫자 → 건반 ----------
+const KEYS = [   // 흰 건반 10개(왼쪽부터), 원본 숫자 피아노와 같은 배치
+  { d: '1', nm: '도', f: 261.63 }, { d: '2', nm: '레', f: 293.66 }, { d: '3', nm: '미', f: 329.63 }, { d: '4', nm: '파', f: 349.23 },
+  { d: '5', nm: '솔', f: 392.00 }, { d: '6', nm: '라', f: 440.00 }, { d: '7', nm: '시', f: 493.88 }, { d: '8', nm: '도', f: 523.25 },
+  { d: '9', nm: '레', f: 587.33 }, { d: '0', nm: '미', f: 659.25 },
+];
+const BLACK = [{ after: 0, f: 277.18 }, { after: 1, f: 311.13 }, { after: 3, f: 369.99 }, { after: 4, f: 415.30 }, { after: 5, f: 466.16 }, { after: 7, f: 554.37 }, { after: 8, f: 622.25 }];
+const COLOR = { 1: '#e84118', 2: '#f57c00', 3: '#f2b600', 4: '#57b33f', 5: '#14a37f', 6: '#17b5e2', 7: '#2f6fe0', 8: '#7a4fd6', 9: '#c2399f', 0: '#5b6474' };
+const $ = (id) => document.getElementById(id);
+
+// ---------- 소리(부드러운 피아노 느낌: 삼각파 + 배음, 짧게 줄어듦) ----------
+let ac = null;
+function tone(f, dur = 0.55) {
+  ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+  if (ac.state === 'suspended') ac.resume();
+  const t = ac.currentTime, g = ac.createGain();
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.5, t + 0.012); g.gain.exponentialRampToValueAtTime(0.0008, t + dur);
+  g.connect(ac.destination);
+  [[1, 'triangle', 1], [2, 'sine', 0.25], [3, 'sine', 0.08]].forEach(([m, type, v]) => {
+    const o = ac.createOscillator(), og = ac.createGain();
+    o.type = type; o.frequency.value = f * m; og.gain.value = v;
+    o.connect(og); og.connect(g); o.start(t); o.stop(t + dur + 0.05);
+  });
+}
+
+// ---------- 건반 그리기 ----------
+const kb = $('kb');
+KEYS.forEach((k, i) => {
+  const w = document.createElement('div');
+  w.className = 'wk'; w.dataset.d = k.d; w.style.setProperty('--c', COLOR[k.d]);
+  w.innerHTML = `<span class="bar-c" style="background:${COLOR[k.d]}"></span><span class="dig" style="color:${COLOR[k.d]}">${k.d}</span><span class="nm">${k.nm}</span>`;
+  w.addEventListener('pointerdown', () => { tone(k.f); flash(k.d); });
+  kb.append(w);
+});
+function placeBlack() {
+  kb.querySelectorAll('.bk').forEach((x) => x.remove());
+  const ws = [...kb.querySelectorAll('.wk')];
+  BLACK.forEach((b) => {
+    const a = ws[b.after], c = ws[b.after + 1]; if (!a || !c) return;
+    const x = (a.offsetLeft + a.offsetWidth + c.offsetLeft) / 2, wd = a.offsetWidth * 0.56;
+    const el = document.createElement('div'); el.className = 'bk'; el.style.left = (x - wd / 2) + 'px'; el.style.width = wd + 'px';
+    el.addEventListener('pointerdown', (e) => { e.stopPropagation(); tone(b.f); el.classList.add('on'); setTimeout(() => el.classList.remove('on'), 180); });
+    kb.append(el);
+  });
+}
+new ResizeObserver(placeBlack).observe(kb);
+function flash(d) { const w = kb.querySelector(`.wk[data-d="${d}"]`); if (!w) return; w.classList.add('on'); setTimeout(() => w.classList.remove('on'), 200); }
+window.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.repeat) return;
+  const k = KEYS.find((x) => x.d === e.key); if (k) { tone(k.f); flash(k.d); }
+});
+
+// ---------- 자리 숫자 구하기(BigInt, 정확) ----------
+const TEN = 10n;
+const pow10 = (n) => TEN ** BigInt(n);
+function fracDigits(a, b, n) {   // a/b → 정수 부분, 소수 n자리, 순환마디 시작·길이
+  a = BigInt(a); b = BigInt(b);
+  const ip = (a / b).toString(); let r = a % b; let ds = ''; const seen = new Map(); let cyc = null;
+  for (let i = 0; i < n; i++) {
+    if (cyc === null) { if (r === 0n) cyc = { fin: i }; else if (seen.has(r)) cyc = { s: seen.get(r), len: i - seen.get(r) }; else seen.set(r, i); }
+    r *= TEN; ds += (r / b).toString(); r %= b;
+  }
+  if (cyc === null) { if (r === 0n) cyc = { fin: n }; else if (seen.has(r)) cyc = { s: seen.get(r), len: n - seen.get(r) }; }
+  return { ip, ds, cyc };
+}
+function arctanInv(x, unity) {   // arctan(1/x) * unity
+  x = BigInt(x); const x2 = x * x; let term = unity / x, sum = term, k = 1n, sign = -1n;
+  while (term !== 0n) { term /= x2; k += 2n; sum += sign * (term / k); sign = -sign; }
+  return sum;
+}
+function piDigits(n) {
+  const g = 12, unity = pow10(n + g);
+  const pi = 16n * arctanInv(5, unity) - 4n * arctanInv(239, unity);
+  const s = (pi / pow10(g)).toString();   // 3 다음 n자리
+  return { ip: s.slice(0, 1), ds: s.slice(1, 1 + n) };
+}
+function eDigits(n) {
+  const g = 12, unity = pow10(n + g); let sum = 0n, term = unity, k = 0n;
+  while (term !== 0n) { sum += term; k += 1n; term /= k; }
+  const s = (sum / pow10(g)).toString();
+  return { ip: s.slice(0, 1), ds: s.slice(1, 1 + n) };
+}
+function isqrt(v) { if (v < 2n) return v; let x = 1n << BigInt(Math.ceil(v.toString(2).length / 2) + 1), y = (x + v / x) >> 1n; while (y < x) { x = y; y = (x + v / x) >> 1n; } return x; }
+function sqrtDigits(m, n) {
+  const r = isqrt(BigInt(m) * pow10(2 * n)).toString().padStart(n + 1, '0');
+  const ip = r.slice(0, r.length - n) || '0', ds = r.slice(r.length - n);
+  const root = isqrt(BigInt(m)); return { ip, ds, perfect: root * root === BigInt(m) };
+}
+
+// ---------- 화면 ----------
+let kind = 'frac', seq = null, playing = false, stopFlag = false;
+const intVal = (id, lo, hi, def) => { let v = Math.round(Number($(id).value)); if (!Number.isFinite(v) || v < lo) v = def; if (v > hi) v = hi; $(id).value = v; return v; };
+function build() {
+  const n = intVal('nd', 1, 500, 20);
+  let r, expr, meta = '';
+  if (kind === 'frac') {
+    const a = intVal('fa', 1, 1e9, 1), b = intVal('fb', 1, 1e9, 7);
+    r = fracDigits(a, b, n); expr = `${a}/${b}`;
+    meta = r.cyc && r.cyc.fin !== undefined ? `유한소수 · 소수점 아래 ${r.cyc.fin}자리에서 끝나요(뒤는 0)` : r.cyc ? `순환소수 · 순환마디 ${r.cyc.len}자리` : '순환소수 · 순환마디가 아직 다 나오지 않았어요(자리를 늘려 보세요)';
+  } else if (kind === 'pi') { r = piDigits(n); expr = 'π'; meta = '무리수 · 원주율'; }
+  else if (kind === 'e') { r = eDigits(n); expr = 'e'; meta = '무리수 · 자연상수'; }
+  else { const m = intVal('sn', 1, 1e9, 2); r = sqrtDigits(m, n); expr = `√${m}`; meta = r.perfect ? `√${m} = ${r.ip} · 자연수예요(소수 부분은 모두 0)` : '무리수'; }
+  seq = { ip: r.ip, ds: r.ds, cyc: r.cyc };
+  $('expr').textContent = `${expr} = ${r.ip}.${r.ds.slice(0, 12)}${r.ds.length > 12 ? '…' : ''}`;
+  $('meta').textContent = `${meta} · 소수점 아래 ${n}자리까지 연주`;
+  const strip = $('strip'); strip.innerHTML = '';
+  const chip = (ch, cls) => { const s = document.createElement('span'); s.className = 'd ' + cls; s.textContent = ch; s.style.background = COLOR[ch] || ''; strip.append(s); return s; };
+  [...r.ip].forEach((ch) => chip(ch, 'int'));
+  chip('.', 'dot');
+  [...r.ds].forEach((ch, i) => { const c = chip(ch, ''); if (r.cyc && r.cyc.len && i >= r.cyc.s && i < r.cyc.s + r.cyc.len) c.classList.add('cyc'); });
+  $('now').textContent = '';
+}
+const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+async function play() {
+  if (playing) return;
+  build();
+  playing = true; stopFlag = false; $('b-play').disabled = true; $('b-stop').disabled = false;
+  const reps = intVal('rep', 1, 20, 1), gap = Number($('tempo').value);
+  const chips = [...$('strip').children];
+  for (let r = 1; r <= reps && !stopFlag; r++) {
+    chips.forEach((c) => c.classList.remove('done', 'cur'));
+    for (let i = 0; i < chips.length && !stopFlag; i++) {
+      const c = chips[i];
+      if (c.classList.contains('dot')) { await sleep(gap * 0.6); continue; }   // 소수점에서 잠깐 쉼
+      const k = KEYS.find((x) => x.d === c.textContent);
+      chips.forEach((x) => x.classList.remove('cur')); c.classList.add('cur', 'done');
+      c.scrollIntoView({ block: 'nearest' });
+      const di = i > [...seq.ip].length ? i - [...seq.ip].length : 0;
+      $('now').textContent = `${reps > 1 ? `${r}/${reps}번째 · ` : ''}${di ? `소수점 아래 ${di}번째 자리` : '정수 부분'} · ${c.textContent} → ${k.nm}`;
+      tone(k.f, Math.min(0.9, gap / 1000 * 1.6)); flash(k.d);
+      await sleep(gap);
+    }
+    if (r < reps && !stopFlag) await sleep(gap * 2);   // 반복 사이 쉼
+  }
+  chips.forEach((x) => x.classList.remove('cur'));
+  $('now').textContent = stopFlag ? '멈췄어요' : '연주 끝';
+  playing = false; $('b-play').disabled = false; $('b-stop').disabled = true;
+}
+$('b-play').onclick = play;
+$('b-stop').onclick = () => { stopFlag = true; };
+$('seg').querySelectorAll('button').forEach((b) => b.onclick = () => {
+  if (playing) return;
+  kind = b.dataset.k;
+  $('seg').querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
+  document.querySelectorAll('.src').forEach((s) => s.classList.toggle('hidden', s.dataset.src !== kind));
+  build();
+});
+['fa', 'fb', 'sn', 'nd'].forEach((id) => $(id).addEventListener('change', () => { if (!playing) build(); }));
+$('nd').addEventListener('keydown', (e) => { if (e.key === 'Enter') play(); });
+build();
+</script>
+</body>
+</html>

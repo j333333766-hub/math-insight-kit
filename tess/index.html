@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>테셀레이션 수업 안내</title>
+<meta name="description" content="꼭짓점 마스터와 폴리패드로 정규·반정규 테셀레이션을 찾는 2차시 수업 — 교사용 안내">
+<link rel="icon" href="../emoji/1f537.svg">
+<link rel="stylesheet" href="../kit.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="top noprint"><a href="../">← 수학 융합 수업 키트</a><span class="sp"></span><a href="../music/">피타고라스 음률 →</a></div>
+  <span class="tag">교사용 수업 안내 · 도형 × 미술</span>
+  <h1>꼭짓점 마스터: 360°의 비밀</h1>
+  <p class="lead">“보도블록과 벽지는 어떻게 빈틈없이 깔릴까?” — 한 꼭짓점에 정다각형을 모아 <b>360°</b>가 되는 조합을 모두 찾고,
+    그 조합으로 실제 평면을 깔아 보며 <b>정규 테셀레이션 3가지 + 반정규 테셀레이션 8가지</b>를 학생 스스로 발견하는 수업이에요.</p>
+
+  <div class="grid" style="margin-top:16px">
+    <div class="card"><b>대상·시간</b><p class="muted">중1(다각형의 내각을 배운 뒤) ~ 중2 · 2차시(45분 × 2). 자유학기 주제선택·수학 동아리로도 좋아요.</p></div>
+    <div class="card"><b>관련 내용</b><p class="muted">정다각형의 한 내각 180°×(n−2)/n · 다각형의 내각의 합 · 경우를 빠짐없이 세기 · 비</p></div>
+    <div class="card"><b>준비</b><p class="muted">학생 1인 1기기(노트북·크롬북·태블릿, 크롬/엣지/웨일) · 인터넷 · <a href="sheet.html">활동지</a> 인쇄(선택)</p></div>
+  </div>
+
+  <h2>학생에게 안내할 주소</h2>
+  <div class="card share" data-share="student.html">
+    <div>
+      <p>수업 시간에 이 주소나 QR을 화면에 띄워 주세요. 학생 시작 화면에 오늘 할 활동이 순서대로 있어요.</p>
+      <code data-url></code>
+      <div class="row noprint">
+        <button class="btn pri" data-copy type="button">📋 주소 복사</button>
+        <a class="btn" data-open target="_blank" rel="noopener">학생 화면 미리 보기 ↗</a>
+        <a class="btn" href="sheet.html" target="_blank" rel="noopener">🖨 활동지 열기</a>
+      </div>
+    </div>
+    <div class="qr" aria-label="학생 주소 QR 코드"></div>
+  </div>
+
+  <h2>학생이 쓰는 도구</h2>
+  <div class="grid">
+    <div class="card"><b>꼭짓점 마스터 (도전 17가지)</b><p class="muted">정삼각형~정사십이각형 중에서 골라 한 꼭짓점에 모으고, 합이 360°가 되는 조합을 찾아 기록해요. 힌트 5번, [모든 정답 보기].</p>
+      <a class="tool" href="../tools/vertex-master.html" target="_blank" rel="noopener"><img src="../emoji/1f537.svg" alt="">열기</a></div>
+    <div class="card"><b>꼭짓점 마스터 (쉬운 버전 12가지)</b><p class="muted">정다각형 8가지(3·4·5·6·8·9·10·12)만 써요. 처음 하거나 시간이 짧은 반에 권해요.</p>
+      <a class="tool" href="../tools/tess-combo.html" target="_blank" rel="noopener"><img src="../emoji/1f537.svg" alt="">열기</a></div>
+    <div class="card"><b>폴리패드로 테셀레이션 깔기</b><p class="muted">미션(한 꼭짓점에 정다각형 3·4·5·6개)마다 순서쌍을 고르고 [한 꼭짓점 채우기] → 넓혀 가며 평면을 채워요. [그림으로 저장]으로 PNG를 내려받아 제출.</p>
+      <a class="tool" href="../tools/polypad-tess.html" target="_blank" rel="noopener"><img src="../emoji/1f9e9.svg" alt="">열기</a></div>
+    <div class="card"><b>17가지 정리표 (PDF)</b><p class="muted">17가지 조합과 실제로 평면을 채우는지를 한 장에 정리한 표. 정리 단계에서 화면에 띄우세요.</p>
+      <a class="tool" href="../files/tess-17.pdf" target="_blank" rel="noopener"><img src="../emoji/1f4c4.svg" alt="">열기</a></div>
+  </div>
+
+  <h2>1차시 · 360°가 되는 조합 찾기</h2>
+  <ol class="flow">
+    <li><span class="min">5분</span><span class="t">도입 — 빈틈없이 덮기</span>
+      <p>보도블록·욕실 타일·벌집·에셔 작품 사진을 보여 주며 ‘테셀레이션(평면을 겹치지도 비지도 않게 덮기)’을 소개해요.</p>
+      <p class="ask"><b>발문</b>정오각형 타일로만 바닥을 깔 수 있을까요? 정육각형은요? 무엇이 다를까요?</p></li>
+    <li><span class="min">7분</span><span class="t">한 내각 구하기</span>
+      <p>정n각형의 한 내각 180°×(n−2)/n 을 복습하고, 활동지 표(정삼각형 60° ~ 정십이각형 150°)를 채워요.</p>
+      <p class="ask"><b>발문</b>한 꼭짓점에 타일이 빈틈없이 모이려면 각의 합이 얼마여야 할까요? (→ 360°)</p></li>
+    <li><span class="min">20분</span><span class="t">꼭짓점 마스터 — 조합 찾기</span>
+      <p>짝과 함께 정다각형을 골라 한 꼭짓점에 모으고, 합이 360°인 조합을 찾아요. 찾을 때마다 활동지에 식을 적게 하세요(예: 60+150+150=360).</p>
+      <p class="ask"><b>발문</b>한 꼭짓점에 정다각형이 최소 몇 개, 최대 몇 개 모일 수 있을까요? 왜 그럴까요? (가장 작은 내각 60° → 최대 6개, 내각은 180°보다 작음 → 최소 3개)</p>
+      <p class="ask"><b>발문</b>빠뜨리지 않고 모두 찾으려면 어떻게 정리하면 좋을까요? (개수별로, 가장 작은 다각형부터 차례로)</p>
+      <a class="tool" href="../tools/vertex-master.html" target="_blank" rel="noopener"><img src="../emoji/1f537.svg" alt="">꼭짓점 마스터</a></li>
+    <li><span class="min">10분</span><span class="t">정리 — 17가지, 그런데…</span>
+      <p>개수별로 찾은 조합을 모아 17가지를 확인해요(아래 정답표). 마지막 질문으로 2차시를 예고해요.</p>
+      <p class="ask"><b>발문</b>(3, 7, 42)도 한 꼭짓점은 360°예요. 이 조합으로 바닥 전체를 깔 수 있을까요?</p></li>
+    <li><span class="min">3분</span><span class="t">마무리</span><p>‘한 꼭짓점에서 360°’는 필요조건일 뿐일까? — 다음 시간에 직접 깔아서 확인해요.</p></li>
+  </ol>
+
+  <h2>2차시 · 폴리패드로 깔아 보기</h2>
+  <ol class="flow">
+    <li><span class="min">5분</span><span class="t">조작법 익히기</span>
+      <p>폴리패드에서 순서쌍 칩(예: (4, 8, 8))을 고르고 <b>[한 꼭짓점 채우기]</b>를 누르면 그 꼭짓점이 자동으로 깔려요.
+        ＋단추로 같은 정다각형을 더 놓고, 타일을 눌러 돌리고, 꼭짓점끼리 가까이 대면 붙어요. 여러 개를 골라 복제하면 빨라요.</p></li>
+    <li><span class="min">10분</span><span class="t">미션 1 · 정규 테셀레이션</span>
+      <p>(6, 6, 6) → 미션 4의 (3, 3, 3, 3, 3, 3), 미션 2의 (4, 4, 4, 4)를 깔아 보며 ‘한 가지 정다각형만으로 깔리는 것은 3가지뿐’임을 확인해요.</p>
+      <p class="ask"><b>발문</b>정오각형만으로는 왜 안 될까요? (108°×3=324°, 108°×4=432° — 360°를 만들 수 없음)</p></li>
+    <li><span class="min">15분</span><span class="t">미션 1~3 · 반정규 테셀레이션 찾기</span>
+      <p>순서쌍을 골라 한 꼭짓점을 채운 뒤 두 겹, 세 겹 넓혀요. 기준은 하나: <b>모든 꼭짓점의 배열이 처음 꼭짓점과 같은가?</b></p>
+      <p class="ask"><b>발문</b>(5, 5, 10)으로 넓혀 보세요. 어디에서 막히나요? 막힌 꼭짓점의 배열은 무엇인가요?</p>
+      <p class="ask"><b>발문</b>(3, 6, 3, 6)과 (3, 3, 6, 6)은 같은 타일인데 결과가 다를까요? 순서가 왜 중요할까요?</p>
+      <p class="ask"><b>발문(심화)</b>넓힐수록 정삼각형 : 정육각형 개수는 어떤 비에 가까워질까요? 깔기 전에 예측해 보세요.</p>
+      <a class="tool" href="../tools/polypad-tess.html" target="_blank" rel="noopener"><img src="../emoji/1f9e9.svg" alt="">폴리패드로 테셀레이션 깔기</a></li>
+    <li><span class="min">7분</span><span class="t">제출 — 그림으로 저장</span>
+      <p>완성한 미션은 <b>[🖼 미션 N 그림으로 저장]</b>으로 PNG를 내려받아 학교에서 쓰는 패들렛·클래스룸·알지오모둠 등에 올리게 하세요. 친구 작품을 보며 같은 순서쌍인지 맞혀 보는 갤러리 워크도 좋아요.</p></li>
+    <li><span class="min">8분</span><span class="t">정리 — 11가지</span>
+      <p>17가지 정리표(PDF)를 띄우고, 평면을 채우는 배열이 <b>정규 3 + 반정규 8 = 11가지</b>임을 정리해요.</p>
+      <p class="ask"><b>발문</b>‘한 꼭짓점에서 360°’와 ‘평면 전체를 채운다’는 어떻게 다른가요? 일상의 어디에서 반정규 테셀레이션을 볼 수 있을까요? (축구공 무늬는 입체 버전!)</p>
+      <a class="tool" href="../files/tess-17.pdf" target="_blank" rel="noopener"><img src="../emoji/1f4c4.svg" alt="">17가지 정리표</a></li>
+  </ol>
+
+  <h2>정답과 해설</h2>
+  <details open>
+    <summary>17가지 조합 · 평면을 채우는 배열 · 타일 개수 비</summary>
+    <div class="tbl"><table>
+      <thead><tr><th>개수</th><th>조합(정n각형)</th><th class="l">내각의 합</th><th>모든 꼭짓점이 같은 배열로 평면을 채우나?</th><th>타일 개수 비</th></tr></thead>
+      <tbody>
+        <tr><td rowspan="10">3개</td><td>(3, 7, 42)</td><td class="l">60 + 900/7 + 1200/7</td><td class="no">✕</td><td>–</td></tr>
+        <tr><td>(3, 8, 24)</td><td class="l">60 + 135 + 165</td><td class="no">✕</td><td>–</td></tr>
+        <tr><td>(3, 9, 18)</td><td class="l">60 + 140 + 160</td><td class="no">✕</td><td>–</td></tr>
+        <tr><td>(3, 10, 15)</td><td class="l">60 + 144 + 156</td><td class="no">✕</td><td>–</td></tr>
+        <tr><td>(3, 12, 12)</td><td class="l">60 + 150 + 150</td><td class="yes">○ 3.12.12</td><td>삼 : 십이 = 2 : 1</td></tr>
+        <tr><td>(4, 5, 20)</td><td class="l">90 + 108 + 162</td><td class="no">✕</td><td>–</td></tr>
+        <tr><td>(4, 6, 12)</td><td class="l">90 + 120 + 150</td><td class="yes">○ 4.6.12</td><td>사 : 육 : 십이 = 3 : 2 : 1</td></tr>
+        <tr><td>(4, 8, 8)</td><td class="l">90 + 135 + 135</td><td class="yes">○ 4.8.8</td><td>사 : 팔 = 1 : 1</td></tr>
+        <tr><td>(5, 5, 10)</td><td class="l">108 + 108 + 144</td><td class="no">✕ (한 꼭짓점은 되지만 넓히면 막힘)</td><td>–</td></tr>
+        <tr><td>(6, 6, 6)</td><td class="l">120 × 3</td><td class="yes">○ 정규 6³</td><td>–</td></tr>
+        <tr><td rowspan="4">4개</td><td>(3, 3, 4, 12)</td><td class="l">60 + 60 + 90 + 150</td><td class="no">✕ (3.3.4.12, 3.4.3.12 모두)</td><td>–</td></tr>
+        <tr><td>(3, 3, 6, 6)</td><td class="l">60 + 60 + 120 + 120</td><td><span class="yes">○ 3.6.3.6</span> / <span class="no">✕ 3.3.6.6</span></td><td>삼 : 육 = 2 : 1</td></tr>
+        <tr><td>(3, 4, 4, 6)</td><td class="l">60 + 90 + 90 + 120</td><td><span class="yes">○ 3.4.6.4</span> / <span class="no">✕ 3.4.4.6</span></td><td>삼 : 사 : 육 = 2 : 3 : 1</td></tr>
+        <tr><td>(4, 4, 4, 4)</td><td class="l">90 × 4</td><td class="yes">○ 정규 4⁴</td><td>–</td></tr>
+        <tr><td rowspan="2">5개</td><td>(3, 3, 3, 3, 6)</td><td class="l">60 × 4 + 120</td><td class="yes">○ 3.3.3.3.6</td><td>삼 : 육 = 8 : 1</td></tr>
+        <tr><td>(3, 3, 3, 4, 4)</td><td class="l">60 × 3 + 90 × 2</td><td class="yes">○ 3.3.3.4.4 · 3.3.4.3.4</td><td>둘 다 삼 : 사 = 2 : 1</td></tr>
+        <tr><td>6개</td><td>(3, 3, 3, 3, 3, 3)</td><td class="l">60 × 6</td><td class="yes">○ 정규 3⁶</td><td>–</td></tr>
+      </tbody>
+    </table></div>
+    <p class="muted">쉬운 버전(12가지)은 정칠각형·정십오각형·정십팔각형·정이십각형·정이십사각형·정사십이각형이 없어 (3, 7, 42)(3, 8, 24)(3, 9, 18)(3, 10, 15)(4, 5, 20)이 빠진 12가지예요.</p>
+  </details>
+  <details>
+    <summary>왜 (5, 5, 10)은 안 될까? — 학생 설명 예시</summary>
+    <p>정오각형 하나를 가운데 두고 생각해요. 이 정오각형의 꼭짓점 5개마다 나머지 두 칸에 ‘정오각형 하나 + 정십각형 하나’가 와야 해요.
+      그러면 정오각형의 변을 따라 돌 때 옆에 붙는 타일이 <b>오각형 → 십각형 → 오각형 → …</b>으로 번갈아야 하는데, 변이 5개(홀수)라 한 바퀴 돌면 어긋나요.
+      같은 이유로 (3, 7, 42)(3, 8, 24)(3, 9, 18)(3, 10, 15)(4, 5, 20)도 안 돼요(홀수 변을 가진 다각형 둘레에 서로 다른 두 다각형이 번갈아 와야 함).</p>
+  </details>
+  <details>
+    <summary>타일 개수 비는 어떻게 예측할까? — 심화</summary>
+    <p>평면이 아주 넓을 때 꼭짓점이 V개라고 해요. 한 꼭짓점에 정n각형이 k개 모이고, 정n각형 하나는 꼭짓점 n개를 가지므로 정n각형의 개수는 약 <b>k·V / n</b>개예요.</p>
+    <p>예) 3.6.3.6: 정삼각형 2·V/3, 정육각형 2·V/6 → 2 : 1 &nbsp;·&nbsp; 4.6.12: V/4 : V/6 : V/12 = 3 : 2 : 1 &nbsp;·&nbsp; 3.3.3.3.6: 4·V/3 : V/6 = 8 : 1</p>
+    <p class="muted">폴리패드 도구는 내 타일 개수로 ‘지금 비’를 보여 줘요. 넓힐수록 예측한 비에 가까워지는지 확인하게 하세요(예측 비는 일부러 보여 주지 않아요).</p>
+  </details>
+
+  <h2>평가 아이디어 (과정 중심)</h2>
+  <div class="tbl"><table>
+    <thead><tr><th class="l">무엇을</th><th class="l">어떻게 보나요</th></tr></thead>
+    <tbody>
+      <tr><td class="l">조합 찾기</td><td class="l">활동지에 조합마다 내각의 합 식을 썼는가 · 개수별로 빠짐없이 찾는 방법을 설명했는가</td></tr>
+      <tr><td class="l">평면 깔기</td><td class="l">미션별 저장 그림에서 모든 꼭짓점의 배열이 같은가 · 고른 순서쌍과 그림이 맞는가</td></tr>
+      <tr><td class="l">추론·의사소통</td><td class="l">‘(5, 5, 10)이 안 되는 이유’ 또는 ‘(3, 6, 3, 6)과 (3, 3, 6, 6)의 차이’를 그림과 함께 설명했는가</td></tr>
+      <tr><td class="l">심화</td><td class="l">타일 개수 비를 예측하고, 실제 깐 개수와 비교해 설명했는가</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>수업 전에 알아 두면 좋아요</h2>
+  <ul class="tight">
+    <li>학생 기록(찾은 조합, 미션별 그림판)은 <b>그 기기의 브라우저</b>에 저장돼요. 공용 기기라면 수업 끝에 꼭짓점 마스터 위쪽 [처음부터 다시]로 지워 주세요.</li>
+    <li>폴리패드가 뜨지 않으면 학교 인터넷에서 polypad.amplify.com 이 막혔는지 확인하세요. 도구 위 [폴리패드 새 창 ↗]으로 원래 폴리패드를 열어 해도 돼요(이때는 순서쌍 자동 채우기가 없어요).</li>
+    <li>태블릿·휴대폰처럼 화면이 좁으면 폴리패드 왼쪽 칸이 좁아요. 노트북·크롬북을 권해요.</li>
+    <li>알지오매스로 하고 싶다면: 정다각형 명령으로 타일을 만들어 같은 활동을 할 수 있어요(알지오모둠 과제로 내면 제출·평가까지 한곳에서).</li>
+  </ul>
+
+  <footer>구월중학교 조창현 · 「수학 수업 인사이드」(2026. 11. 14.) 나눔 자료 · 폴리패드: Powered by Amplify Polypad</footer>
+</div>
+<script src="../kit.js"></script>
+</body>
+</html>
