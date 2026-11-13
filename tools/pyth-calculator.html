@@ -273,6 +273,11 @@
         }
         .result-area.error { color: #D8000C; background-color: #FFD2D2; border-color: transparent; cursor: default; }
         
+        /* 11/13 사용자: 숫자 입력 칸 옆 [440Hz 넣기] */
+        .input-row { display: flex; gap: 8px; align-items: stretch; }
+        .input-row input[type="number"].calc-input { flex: 1; min-width: 0; width: auto; }
+        #fill440Button { flex-shrink: 0; white-space: nowrap; background-color: var(--calc-primary); color: #fff; }
+        #fill440Button:hover { filter: brightness(0.92); }
         .result-actions { margin-top: 15px; display: flex; gap: 10px; }
         .result-actions button { flex-grow: 1; background-color: var(--calc-secondary); color: #fff; }
         .result-actions button:hover:not(:disabled) { background-color: var(--calc-secondary-hover); }
@@ -317,7 +322,10 @@
 
             <div class="form-group">
                 <label for="numberInput">숫자 입력 (결과 드롭 가능):</label>
-                <input type="number" id="numberInput" class="calc-input" placeholder="여기에 숫자를 입력/드롭하세요" step="any" inputmode="decimal"/>
+                <div class="input-row">
+                    <input type="number" id="numberInput" class="calc-input" placeholder="여기에 숫자를 입력/드롭하세요" step="any" inputmode="decimal"/>
+                    <button type="button" id="fill440Button" title="기준음 라(A4) 440Hz를 숫자 입력 칸에 넣어요">440Hz 넣기</button>
+                </div>
             </div>
 
             <div class="form-group">
@@ -705,6 +713,11 @@
                 }, 1200);
             });
 
+            document.getElementById('fill440Button').addEventListener('click', () => {
+                numberInput.value = 440;
+                numberInput.dispatchEvent(new Event('input', { bubbles: true }));
+                numberInput.focus();
+            });
             numberInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter'){ calculateButton.click(); }
             });
