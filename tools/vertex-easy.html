@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>꼭짓점 마스터 (쉬운 버전)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        #found-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        #found-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        #found-list::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        #found-list::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        .polygon-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .polygon-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .message-popup {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out, top 0.5s ease-in-out;
+            font-size: 0.9rem;
+        }
+        .message-popup.show {
+            opacity: 1;
+            top: 40px;
+        }
+        .message-popup.success { background-color: #4CAF50; }
+        .message-popup.error { background-color: #F44336; }
+        .message-popup.info { background-color: #2196F3; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-teal-100 to-cyan-200 min-h-screen flex flex-col items-center justify-center p-4 selection:bg-cyan-500 selection:text-white">
+
+    <div id="app-container" class="bg-white/80 backdrop-blur-md shadow-2xl rounded-xl p-6 md:p-8 w-full max-w-4xl">
+        <header class="text-center mb-6 md:mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-cyan-700">✨ 꼭짓점 마스터 (쉬운 버전) ✨</h1>
+            <p class="text-gray-600 mt-2 text-sm md:text-base">정삼각형, 정사각형, 정육각형으로 만들 수 있는 7가지 조합을 찾아보세요!</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Polygon Selector Panel -->
+            <div id="polygon-selector-panel" class="md:col-span-1 bg-slate-50 p-4 rounded-lg shadow">
+                <h2 class="text-xl font-semibold text-slate-700 mb-3 text-center">다각형 선택</h2>
+                <div id="polygon-buttons-container" class="grid grid-cols-1 gap-3">
+                    <!-- Polygon buttons will be inserted here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Vertex Assembly Panel -->
+            <div id="vertex-assembly-panel" class="md:col-span-1 bg-slate-50 p-4 rounded-lg shadow flex flex-col">
+                <h2 class="text-xl font-semibold text-slate-700 mb-3 text-center">현재 꼭짓점 구성</h2>
+                <div id="current-vertex-display" class="bg-white p-3 rounded min-h-[80px] border border-slate-300 text-sm text-slate-700 mb-3 flex-grow overflow-y-auto">
+                    <!-- Selected polygons will be shown here -->
+                </div>
+                <div id="current-sum-display" class="text-lg font-semibold text-cyan-600 mb-3 text-center">현재 각도 합계: 0°</div>
+                <button id="clear-vertex-button" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg shadow transition-colors duration-150">
+                    꼭짓점 비우기
+                </button>
+            </div>
+
+            <!-- Found Combinations Panel -->
+            <div id="found-combinations-panel" class="md:col-span-1 bg-slate-50 p-4 rounded-lg shadow flex flex-col">
+                <h2 class="text-xl font-semibold text-slate-700 mb-3 text-center">
+                    찾은 조합 <span id="progress-counter">(0/7)</span>
+                </h2>
+                <ul id="found-list" class="list-disc pl-5 pr-2 bg-white rounded border border-slate-300 text-sm text-slate-700 space-y-1 overflow-y-auto h-48 md:h-auto flex-grow">
+                    <!-- Found combinations will be listed here -->
+                </ul>
+            </div>
+        </div>
+         <p class="text-xs text-gray-500 mt-6 text-center">현재 꼭짓점의 다각형을 클릭하여 제거할 수 있습니다.</p>
+    </div>
+
+    <div id="message-popup-container"></div>
+
+    <script>
+        // Simplified polygon data for the easy version
+        const polygonsData = [
+            { sides: 3, name: '정삼각형', angle: 60, color: 'bg-green-500' },
+            { sides: 4, name: '정사각형', angle: 90, color: 'bg-blue-500' },
+            { sides: 6, name: '정육각형', angle: 120, color: 'bg-purple-500' }
+        ];
+
+        // 7 target combinations for the easy version
+        const targetCombinationsRaw = [
+            [3, 3, 3, 3, 3, 3], // 6 triangles
+            [4, 4, 4, 4],       // 4 squares
+            [6, 6, 6],          // 3 hexagons
+            [3, 3, 3, 3, 6],    // 4 triangles, 1 hexagon
+            [3, 3, 3, 4, 4],    // 3 triangles, 2 squares
+            [3, 3, 6, 6],       // 2 triangles, 2 hexagons
+            [3, 4, 4, 6]        // 1 triangle, 2 squares, 1 hexagon (sorted from 3,4,6,4)
+        ];
+
+        const targetCombinationsStrings = new Set(
+            targetCombinationsRaw.map(arr => arr.sort((a,b) => a-b).join(','))
+        );
+        const totalCombinations = targetCombinationsStrings.size;
+
+        let currentVertexPolygons = []; // Stores {sides, name, angle} objects
+        let foundCombinationsSet = new Set();
+        const EPSILON = 0.001; // For floating point comparisons
+
+        const polygonButtonsContainer = document.getElementById('polygon-buttons-container');
+        const currentVertexDisplay = document.getElementById('current-vertex-display');
+        const currentSumDisplay = document.getElementById('current-sum-display');
+        const clearVertexButton = document.getElementById('clear-vertex-button');
+        const foundList = document.getElementById('found-list');
+        const progressCounter = document.getElementById('progress-counter');
+        const messagePopupContainer = document.getElementById('message-popup-container');
+
+        // Initialize polygon selector buttons
+        function initPolygonSelectors() {
+            polygonsData.forEach(polygon => {
+                const button = document.createElement('button');
+                button.classList.add('polygon-btn', polygon.color, 'hover:opacity-90', 'text-white', 'text-base', 'font-semibold', 'py-3', 'px-2', 'rounded-lg', 'shadow');
+                button.innerHTML = `${polygon.name} (${polygon.angle}°)`;
+                button.dataset.sides = polygon.sides;
+                button.addEventListener('click', () => addPolygonToVertex(polygon.sides));
+                polygonButtonsContainer.appendChild(button);
+            });
+        }
+
+        // Add polygon to the current vertex
+        function addPolygonToVertex(sides) {
+            if (currentVertexPolygons.length >= 6) {
+                showMessage('최대 6개의 다각형만 추가할 수 있습니다.', 'info');
+                return;
+            }
+            const polygon = polygonsData.find(p => p.sides === sides);
+            if (polygon) {
+                currentVertexPolygons.push(polygon);
+                updateVertexDisplayAndSum();
+                checkCombination();
+            }
+        }
+        
+        // Remove a polygon from the current vertex by its index
+        function removePolygonFromVertex(index) {
+            if (index >= 0 && index < currentVertexPolygons.length) {
+                currentVertexPolygons.splice(index, 1);
+                updateVertexDisplayAndSum(); 
+                checkCombination(); 
+            }
+        }
+
+        // Update the display for current vertex and sum of angles, and add click-to-remove
+        function updateVertexDisplayAndSum() {
+            currentVertexDisplay.innerHTML = ''; 
+            currentVertexPolygons.forEach((p, index) => {
+                const polygonSpan = document.createElement('span');
+                const colorClass = p.color.replace('bg-', 'bg-').replace('-500', '-100'); // e.g., bg-green-100
+                const textClass = p.color.replace('bg-', 'text-').replace('-500', '-700'); // e.g., text-green-700
+                polygonSpan.classList.add(
+                    'inline-block', colorClass, textClass,
+                    'px-2', 'py-1', 'rounded-md', 'mr-1', 'mb-1', 
+                    'cursor-pointer', 'hover:bg-red-200', 'hover:text-red-700', 'transition-colors', 'duration-150'
+                );
+                polygonSpan.textContent = p.name;
+                polygonSpan.dataset.index = index;
+                polygonSpan.title = `클릭하여 "${p.name}" 제거`;
+
+                polygonSpan.addEventListener('click', (event) => {
+                    const indexToRemove = parseInt(event.currentTarget.dataset.index); 
+                    removePolygonFromVertex(indexToRemove);
+                });
+                currentVertexDisplay.appendChild(polygonSpan);
+            });
+            
+            const currentSum = currentVertexPolygons.reduce((sum, p) => sum + p.angle, 0);
+            currentSumDisplay.textContent = `현재 각도 합계: ${currentSum.toFixed(0)}°`;
+        }
+
+        // Clear the current vertex
+        function clearVertex() {
+            currentVertexPolygons = [];
+            updateVertexDisplayAndSum();
+        }
+
+        // Check if the current combination is valid
+        function checkCombination() {
+            const numPolygons = currentVertexPolygons.length;
+            if (numPolygons < 3 && numPolygons > 0) return;
+            if (numPolygons === 0) return;
+
+            const currentSum = currentVertexPolygons.reduce((sum, p) => sum + p.angle, 0);
+
+            if (Math.abs(currentSum - 360) < EPSILON) {
+                const currentCombinationArray = currentVertexPolygons.map(p => p.sides).sort((a, b) => a - b);
+                const combinationString = currentCombinationArray.join(',');
+
+                if (targetCombinationsStrings.has(combinationString)) {
+                    if (!foundCombinationsSet.has(combinationString)) {
+                        foundCombinationsSet.add(combinationString);
+                        updateFoundListUI(currentCombinationArray);
+                        updateProgressUI();
+                        showMessage('🎉 정답! 새로운 조합을 찾았습니다!', 'success');
+                        if (foundCombinationsSet.size === totalCombinations) {
+                            showMessage('🎉 모든 7가지 조합을 찾았습니다! 완벽해요!', 'success', 5000);
+                        }
+                    } else {
+                        showMessage('이미 찾은 조합입니다. 다른 조합을 시도해보세요!', 'info');
+                    }
+                } else {
+                     // This case is unlikely in easy version but kept for robustness
+                     showMessage('합은 360°이지만, 목표 조합 목록에 없습니다.', 'info');
+                }
+            } else if (currentSum > 360 + EPSILON) {
+                showMessage('각도 합계가 360°를 초과했습니다!', 'error');
+            }
+        }
+
+        // Update the list of found combinations
+        function updateFoundListUI(combinationArray) {
+            const listItem = document.createElement('li');
+            listItem.classList.add('text-cyan-700', 'py-0.5');
+            listItem.textContent = `(${combinationArray.join(', ')})`;
+            foundList.appendChild(listItem);
+        }
+
+        // Update the progress counter
+        function updateProgressUI() {
+            progressCounter.textContent = `(${foundCombinationsSet.size}/${totalCombinations})`;
+        }
+        
+        // Show temporary messages to the user
+        let messageTimeout;
+        function showMessage(text, type = 'info', duration = 3000) {
+            if (messageTimeout) clearTimeout(messageTimeout);
+            
+            const existingPopup = messagePopupContainer.querySelector('.message-popup');
+            if (existingPopup) existingPopup.remove();
+
+            const popup = document.createElement('div');
+            popup.className = `message-popup ${type}`;
+            popup.textContent = text;
+            messagePopupContainer.appendChild(popup);
+
+            void popup.offsetWidth; 
+            popup.classList.add('show');
+
+            messageTimeout = setTimeout(() => {
+                popup.classList.remove('show');
+                setTimeout(() => { if (popup.parentNode) popup.remove(); }, 500); 
+            }, duration);
+        }
+
+        // Event Listeners
+        clearVertexButton.addEventListener('click', clearVertex);
+
+        // Initial setup
+        window.addEventListener('DOMContentLoaded', () => {
+            initPolygonSelectors();
+            updateVertexDisplayAndSum(); 
+            updateProgressUI();
+        });
+    </script>
+</body>
+</html>
